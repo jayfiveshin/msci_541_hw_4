@@ -1,0 +1,69 @@
+1. average precision
+  per topic evaluation score
+  average precision for topic 401 (okapi vs dir1500)
+  average precision for topic 402 (okapi vs dir1500)
+  average precision for topic 403 (okapi vs dir1500)
+  ...and so on
+
+  average topic evaluation score (okapi vs dir1500)
+  ...take the average of the average precision score for all topics
+
+2. precision at 1
+  per topic evaluation score
+  precision at 1 for topic 401 (okapi vs dir1500)
+  precision at 1 for topic 402 (okapi vs dir1500)
+  precision at 1 for topic 403 (okapi vs dir1500)
+  ...and so on
+
+  average topic evaluation score (okapi vs dir1500)
+  take the average of the precision at 1 score for all topics
+
+3. precision at 10
+  per topic evaluation score
+  precision at 10 for topic 401 (okapi vs dir1500)
+  precision at 10 for topic 402 (okapi vs dir1500)
+  precision at 10 for topic 403 (okapi vs dir1500)
+  ...and so on
+
+  average topic evaluation score (okapi vs dir1500)
+  take the average of the precision at 10 score for all topics
+
+4. NDCG
+  per topic evaluation score
+  NDCG at 10 for topic 401 (okapi vs dir1500)
+  NDCG at 10 for topic 402 (okapi vs dir1500)
+  NDCG at 10 for topic 403 (okapi vs dir1500)
+  ...and so on
+
+  average topic evaluation score (okapi vs dir1500)
+  take the average of the NDCG at 10 score for all topics
+
+5. For each average precision, precison at 1, precision at 10, and NDCG
+  analyze two results file and report on which is better performing
+  use two-tailed paired t-test to determine if the differences are
+statstically significant
+
+format:
+evaluation_scores.txt
+
+topicID,metric,score,runTag
+401,avg_precision,4,okapi
+402,avg_precision,5,okapi
+403,avg_precision,3,okapi
+.
+.
+.
+450,avg_precision,6,okapi
+401,avg_precision,4,dir1500
+402,avg_precision,3,dir1500
+403,avg_precision,6,dir1500
+.
+.
+.
+450,avg_precision,8,dir1500
+average,avg_precision,5.7,okapi
+average,avg_precision,4.6,dir1500
+401,precision_1,3,okapi
+.
+.
+.

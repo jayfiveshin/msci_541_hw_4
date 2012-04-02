@@ -1,0 +1,18 @@
+Total number of relevant documents = 5
+List of results
+# R/NR? p delta_r
+1. R 1 * 0.2
+2. NR 0.5 * 0
+3. R 0.67 * 0.2
+4. R 0.75 * 0.2
+5. NR 0.6 * 0
+6. NR 0.5 * 0
+7. NR 0.43 * 0
+8. R 0.5 * 0.2
+9. NR 0.44 * 0
+10. R 0.5 * 0.2
+
+Average Precision
+1 * 0.2 + 0.67 * 0.2 + 0.75 * 0.2 + 0.5 * 0.2 + 0.5 * 0.2 = 0.684
+Note: I tooked out all the numbers where you would multiple by zero, because there was no change in recall.
+Some numbers are rounded to 2 decimal points, but you get the point.

@@ -1,0 +1,10 @@
+two-sided, paired, statistical test
+statistical test vs t-test (paired t-test is what I want to be using)
+two-sided vs one-sided (I should be using two-sided because I want to
+test for both better or worse results)
+paired vs unpaired (I should be using paired because both results came
+from the same sample)
+signicance level (I should be using alpha = 0.05, or 5%)
+p-value (probability of obtaining test results at least as extreme as
+actually observed, given null hypothesis is true)
+computation (done)

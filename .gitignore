@@ -1,0 +1,8 @@
+.DS_Store
+data/*
+*.docx
+*.doc
+inverted_index.txt
+*.pdf
+data/results.txt
+instructions/*

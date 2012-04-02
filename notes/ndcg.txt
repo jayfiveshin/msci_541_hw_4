@@ -1,0 +1,11 @@
+normalized version of dcg
+dcg stands for discounted cumulative gain
+two assumptions
+1. some documents are more relevant than others
+2. documents placed on top has more usage, similiarly documents placed
+at the bottom is less useful since it is less likely for users to see
+them
+discount factor is typically x/log2(rank), where x is the level of
+relevance
+normalized means you divide the actual dcg value by the ideal dcg value
+see powerpoint for more detail (chap8.pptx)

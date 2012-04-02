@@ -1,0 +1,8 @@
+Low recall high precision
+  Not getting all of the relevant documents, but for the one that it is gettig, they are good.
+Low recall low precision
+  This just plain sucks. (Worst case scenario)
+High recall low precision
+  Getting almost all of the relevant documents, but it's also getting a lot of non-relevant documents.
+High recall high precision
+  Getting almost all of the relevant documents, also with very little non-relevant documents. (Best case scenario)
