@@ -16,3 +16,27 @@ Average Precision
 1 * 0.2 + 0.67 * 0.2 + 0.75 * 0.2 + 0.5 * 0.2 + 0.5 * 0.2 = 0.684
 Note: I tooked out all the numbers where you would multiple by zero, because there was no change in recall.
 Some numbers are rounded to 2 decimal points, but you get the point.
+
+I need the following:
+Total number of relevant documents for each topic
+
+Assumption:
+I can just use the top ten.
+
+The algorithm:
+sum ( p(k) * rel(k) ) / # of retrieved relevant documents
+where...
+p(k) = precision at rank k
+rel(k) = 1 if item at k is relevant, 0 otherwise
+
+p(k) = sum(rel(k)) / k
+example
+k = 5
+rel(1) = 1
+rel(2) = 0
+rel(3) = 0
+rel(4) = 1
+rel(5) = 1
+sum(rel(k)) = 3
+therefore...
+p(k) = 3 / 5 = 0.6

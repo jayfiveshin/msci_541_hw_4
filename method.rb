@@ -2,28 +2,6 @@ require "zlib"
 require "stemmify"
 
 STOPWORDS = open("data/stopwords").read
-# log P(Q|D) = sum (log((1-smoothing)*(f / |D|) + (smoothing)*(c / |C|)))
-# f: number of times query word occurs in the document
-# c: number of times query word occurs in the collection
-# |D|: number of word occurrences in the document
-# |C|: number of word occurrences in the collection
-# smoothing: smoothing factor (0-1), the lambda is taken in Ruby
-# Natural logarithim: Math.log
-def retrieve(f,c,big_d,big_c,smoothing)
-  if f.class && c.class && big_d.class && smoothing.class == Float
-    Math.log((1-smoothing)*(f/big_d)+(smoothing)*(c/big_c))
-  else
-    puts "Your inputs are not in float"
-  end
-end
-
-def get_data(filename)
-  Zlib::GzipReader.open(filename)
-end
-
-def read_data(filename)
-  Zlib::GzipReader.open(filename).read
-end
 
 def tokenize(string)
   terms = []
@@ -33,90 +11,6 @@ def tokenize(string)
     end
   end
   terms
-end
-
-def create_list(filename)
-  @doc_list = {}
-  inside_doc = false
-  in_length = false
-  docid = 0
-  record = []
-  get_data(filename).each_with_index do |line,index|
-    # if @doc_list.length > 10000
-    #   break
-    # end
-    if line.match("<DOC>")
-      inside_doc = true
-    elsif line.match("<DOCNO>") && inside_doc
-      record[0] = tokenize(line)[1]
-    elsif line.match("<DOCID>") && inside_doc
-      docid = tokenize(line)[1]
-    elsif line.match("</LENGTH>")
-      in_length = false
-    elsif line.match("<LENGTH>")
-      in_length = true
-    elsif in_length == true && line.match("<P>").nil? && line.match("</P>").nil?
-      # puts tokenize(line)[0]
-      record[1] = tokenize(line)[0].to_i
-    elsif line.match("</DOC>")
-      if record[1].nil?
-        record[1] = 1000
-      end
-      @doc_list[docid] = record
-      record = []
-      inside_doc = false
-    end
-    print "\r\e[0K#{@doc_list.length}"
-  end
-  File.open("doc_list.txt", "w") { |f|
-    @doc_list.each do |i|
-      f.write "#{i[0]},#{i[1][0]},#{i[1][1]}\n"
-    end
-  }
-end
-
-def load_index(indexname)
-  index_h = {}
-  inner_h = {}
-  key = ""
-  docid = 0
-  File.open(indexname, "r") { |file|
-    file.each_with_index do |line,i| 
-      print "\r\e[0K#{i}"
-      if i % 2 == 0
-        key = line.chop!
-      elsif i % 2 == 1
-        line.split("\t").each_with_index do |item,j|
-          if j % 2 == 0 # docid
-            docid = item.strip!.to_i
-          elsif j % 2 == 1 # tf
-            inner_h[docid] = item.strip!.to_i
-          end
-        end
-        index_h[key] = inner_h
-        inner_h = {}
-      end
-    end
-  }
-  puts "" # prepares for next line of output
-  index_h
-end
-
-def load_doclist(doclistname)
-  docid = 0
-  docno = ""
-  doclength = 0
-  doc_list = {}
-  File.open(doclistname, "r") { |file|
-    file.each_with_index do |line, i|
-      items = line.split(",")
-      docid = items[0].to_i
-      docno = items[1]
-      doclength = items[2].to_i
-      doc_list[docid] = [docno, doclength]
-    end
-  }
-  doc_list
 end
 
 def create_rel_results(filename)
@@ -129,20 +23,118 @@ def create_rel_results(filename)
     output = "#{filename}.rel"
     File.open(filename, "r").each do |line|
       array = tokenize(line)
-      # if rank is > 10, skip to next topic
+      # I only care about the top ten results
       if array[3].to_i > 10
         next
       end
       if !qrel.match("#{array[2].upcase} 1").nil?
         # Found and relevant
-        File.open(output, "a") { |f| f.write "#{array[0]},#{array[2].upcase},#{array[3]},1\n" }
+        File.open(output, "a") { |f| 
+          f.write "#{array[0]},#{array[2].upcase},#{array[3]},1\n" }
       elsif !qrel.match("#{array[2].upcase} 0").nil?
         # Found but not relevant
-        File.open(output, "a") { |f| f.write "#{array[0]},#{array[2].upcase},#{array[3]},0\n" }
+        File.open(output, "a") { |f| 
+          f.write "#{array[0]},#{array[2].upcase},#{array[3]},0\n" }
       else
         # Not Found
-        File.open(output, "a") { |f| f.write "#{array[0]},#{array[2].upcase},#{array[3]},NF\n" }
+        File.open(output, "a") { |f| 
+          f.write "#{array[0]},#{array[2].upcase},#{array[3]},NF\n" }
       end
     end
   end
+end
+
+def build_rel_h(filename)
+  rel_h = {}
+  File.open("#{filename}.rel", "r") { |f|
+    f.each do |line|
+      token_a = tokenize(line)
+      topic_id = token_a[0].to_i
+      if rel_h[topic_id].nil?
+        rel_h[topic_id] = []
+      end
+      rel_h[topic_id] << token_a[3].to_i
+    end
+  }
+  rel_h
+end
+
+def evaluate_scores(rel_h)
+  # local variables
+  _eval = {}
+  prec = []
+  dcg = []
+  sum = 0
+
+  rel_h.each do |a|
+    topic_id = a[0]
+    a[1].each_with_index do |v,i|
+      unless i == 0
+        dcg << (v.to_f / Math.log2(i+1).to_f)
+      else
+        dcg << v
+      end
+      sum += v
+      prec << (sum.to_f / (i+1).to_f)
+      if _eval[topic_id].nil?
+        _eval[topic_id] = {}
+      end
+      if i == 0
+        _eval[topic_id][:prec_at_1] = v
+      end
+      if i == 9
+        _eval[topic_id][:avg_prec] = prec.mean
+        _eval[topic_id][:prec_at_10] = prec.last
+        _eval[topic_id][:dcg] = dcg.reduce(:+)
+        sum = 0
+        prec = []
+        dcg = []
+      end
+    end
+    # sort array in descending order to compute NDCG
+    a[1].sort_by { |v| -1*v }.each_with_index do |v,i|
+      unless i == 0
+        dcg << (v.to_f / Math.log2(i+1).to_f)
+      else
+        dcg << v
+      end
+      if i == 9
+        if dcg.reduce(:+) == 0.0
+          _eval[topic_id][:ndcg] = 0.0
+        else
+          _eval[topic_id][:ndcg] = _eval[topic_id][:dcg] / dcg.reduce(:+)
+        end
+        dcg = []
+      end
+    end
+  end
+  _eval
+end
+
+def show(_eval)
+  _eval.each do |a|
+    puts "#{a[0]}: #{a[1]}"
+  end
+end
+
+def get_mean_eval(_eval)
+  avg_prec = []
+  prec_at_1 = []
+  prec_at_10 = []
+  dcg = []
+  ndcg = []
+  mean_eval = {}
+  _eval.each do |a|
+    avg_prec << a[1][:avg_prec]
+    prec_at_1 << a[1][:prec_at_1]
+    prec_at_10 << a[1][:prec_at_10]
+    dcg << a[1][:dcg]
+    ndcg << a[1][:ndcg]
+  end
+  mean_eval[:avg_prec] = avg_prec.mean
+  mean_eval[:prec_at_1] = prec_at_1.mean
+  mean_eval[:prec_at_10] = prec_at_10.mean
+  mean_eval[:dcg] = dcg.mean
+  mean_eval[:ndcg] = ndcg.mean
+  mean_eval
 end
