@@ -46,24 +46,45 @@ statstically significant
 format:
 evaluation_scores.txt
 
-topicID,metric,score,runTag
-401,avg_precision,4,okapi
-402,avg_precision,5,okapi
-403,avg_precision,3,okapi
+okapi_evaluation = { 
+  401 => { 
+    :avg_precision => 1, 
+    :precision_at_1 => 2,
+    :precision_at_10 => 3,
+    :ndcg => 4,
+    :run_tag => "okapi" 
+  } 
+}
+dir1500_evaluation = { 
+  401 => { 
+    :avg_prec => 2, 
+    :prec_at_1 => 3,
+    :prec_at_10 => 4,
+    :ndcg => 5,
+    :run_tag => "dir1500" 
+  } 
+}
+topicID,avg_prec,prec_at_1,prec_at_10,ndcg,run_tag
+401,3,4,5,6,okapi
+402,2,5,7,3,okapi
+403,4,6,8,4,okapi
 .
 .
 .
-450,avg_precision,6,okapi
-401,avg_precision,4,dir1500
-402,avg_precision,3,dir1500
-403,avg_precision,6,dir1500
+450,5,1,8,6,okapi
+401,7,3,8,7,dir1500
+402,3,4,2,4,dir1500
+403,1,6,1,1,dir1500
 .
 .
 .
-450,avg_precision,8,dir1500
-average,avg_precision,5.7,okapi
-average,avg_precision,4.6,dir1500
-401,precision_1,3,okapi
-.
-.
-.
+450,5,2,3,1,dir1500
+average,4.2,4.5,5.6,4.1,okapi
+average,4.1,2.3,5.6,1.2,dir1500
+
+[9:41pm] Okay, now what? I've built the relevant files for both results.
+What can I do with them?
+There's something I can do about them... I just know it.
+
+[11:20pm] Just got back from my night drive.
+I'm feeling fresh. Let's do this.
